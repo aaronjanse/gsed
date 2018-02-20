@@ -45,6 +45,9 @@ func init() {
 
 func main() {
 	cursor := Cursor{0, 0}
+	defer func() {
+		fmt.Println(strings.Join(lines, "\n"))
+	}()
 	for {
 		c := getch()
 		switch {
@@ -54,36 +57,36 @@ func main() {
 			lines = append(lines, "")
 			cursor.x = 0
 			cursor.y++
-			fmt.Println()
-			fmt.Print(" \033[1D")
+			fmt.Fprintln(os.Stderr, "")
+			fmt.Fprint(os.Stderr, " \033[1D")
 		case bytes.Equal(c, []byte{127}): // backspace
 			if cursor.x > 0 {
 				lines[cursor.y] = lines[cursor.y][:cursor.x-1] + lines[cursor.y][cursor.x:]
-				fmt.Printf("\r%s", lines[cursor.y]+" ")
-				fmt.Printf("\033[%vG", cursor.x)
+				fmt.Fprintf(os.Stderr, "\r%s", lines[cursor.y]+" ")
+				fmt.Fprintf(os.Stderr, "\033[%vG", cursor.x)
 				cursor.x--
 			} else if cursor.y > 0 {
 				oldLen := len(lines[cursor.y-1])
 				lines[cursor.y-1] += lines[cursor.y]
 				lines = append(lines[:cursor.y], lines[cursor.y+1:]...) // remove line
-				fmt.Printf("\033[%vF\r", len(lines))
+				fmt.Fprintf(os.Stderr, "\033[%vF\r", len(lines))
 				for _, line := range lines {
-					fmt.Println(line)
+					fmt.Fprintln(os.Stderr, line)
 				}
-				fmt.Print("\033[36m~\033[39m" + strings.Repeat(" ", len(lines[len(lines)-1])))
-				fmt.Printf("\033[%vF\033[%vG", len(lines)-cursor.y+1, oldLen+1)
+				fmt.Fprint(os.Stderr, "\033[36m~\033[39m"+strings.Repeat(" ", len(lines[len(lines)-1])))
+				fmt.Fprintf(os.Stderr, "\033[%vF\033[%vG", len(lines)-cursor.y+1, oldLen+1)
 				cursor.x = oldLen
 				cursor.y--
 			}
 		case bytes.Equal(c, []byte{27, 91, 68}): // left
 			if cursor.x > 0 {
 				cursor.x--
-				fmt.Print("\033[1D")
+				fmt.Fprint(os.Stderr, "\033[1D")
 			} else {
 				if cursor.y > 0 {
 					cursor.y--
 					cursor.x = len(lines[cursor.y])
-					fmt.Printf("\033[1A\033[%vG", cursor.x+1)
+					fmt.Fprintf(os.Stderr, "\033[1A\033[%vG", cursor.x+1)
 				}
 			}
 		case bytes.Equal(c, []byte{27, 91, 67}): // right
@@ -92,10 +95,10 @@ func main() {
 				if cursor.y < len(lines)-1 {
 					cursor.x = 0
 					cursor.y++
-					fmt.Print("\033[1E")
+					fmt.Fprint(os.Stderr, "\033[1E")
 				}
 			} else {
-				fmt.Print("\033[1C")
+				fmt.Fprint(os.Stderr, "\033[1C")
 			}
 		case bytes.Equal(c, []byte{27, 91, 65}): // up
 			if cursor.y > 0 {
@@ -103,27 +106,27 @@ func main() {
 			}
 			if cursor.x > len(lines[cursor.y]) {
 				cursor.x = len(lines[cursor.y])
-				fmt.Printf("\033[%vG", cursor.x+1)
+				fmt.Fprintf(os.Stderr, "\033[%vG", cursor.x+1)
 			}
-			fmt.Print("\033[1A")
+			fmt.Fprint(os.Stderr, "\033[1A")
 		case bytes.Equal(c, []byte{27, 91, 66}): // down
 			if cursor.y < len(lines) {
 				cursor.y++
 			}
 			if cursor.x > len(lines[cursor.y]) {
 				cursor.x = len(lines[cursor.y])
-				fmt.Printf("\033[%vG", cursor.x+1)
+				fmt.Fprintf(os.Stderr, "\033[%vG", cursor.x+1)
 			}
-			fmt.Print("\033[1B")
+			fmt.Fprint(os.Stderr, "\033[1B")
 		case bytes.Compare(c, []byte{32}) >= 0 && bytes.Compare(c, []byte{127}) <= 0: // printable chars
 			cursor.x++
 			lines[cursor.y] += string(c)
-			fmt.Print(string(c))
+			fmt.Fprint(os.Stderr, string(c))
 		case bytes.Equal(c, []byte{9}):
-			fmt.Print("\t")
+			fmt.Fprint(os.Stderr, "\t")
 		default:
-			// fmt.Println()
-			// fmt.Println(c)
+			fmt.Fprintln(os.Stderr, "")
+			fmt.Fprintln(os.Stderr, c)
 		}
 	}
 }
