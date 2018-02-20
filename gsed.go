@@ -53,6 +53,8 @@ func main() {
 		switch {
 		case bytes.Equal(c, []byte{3}):
 			return
+		case bytes.Equal(c, []byte{4}):
+			return
 		case bytes.Equal(c, []byte{13}): // newline
 			lines = append(lines, "")
 			cursor.x = 0
