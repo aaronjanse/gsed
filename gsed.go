@@ -80,14 +80,18 @@ func main() {
 			}
 
 		case bytes.Equal(c, []byte{27, 91, 65}): // up
+			if cursor.y > 0 {
 			cursor.y--
+			}
 			if cursor.x > len(lines[cursor.y]) {
 				cursor.x = len(lines[cursor.y])
 				fmt.Printf("\033[%vG", cursor.x+1)
 			}
 			fmt.Print("\033[1A")
 		case bytes.Equal(c, []byte{27, 91, 66}): // down
+			if cursor.y < len(lines) {
 			cursor.y++
+			}
 			if cursor.x > len(lines[cursor.y]) {
 				cursor.x = len(lines[cursor.y])
 				fmt.Printf("\033[%vG", cursor.x+1)
