@@ -55,13 +55,26 @@ func main() {
 			cursor.x = 0
 			cursor.y++
 			fmt.Println()
+			fmt.Print(" \033[1D")
 		case bytes.Equal(c, []byte{127}): // backspace
 			if cursor.x > 0 {
 				lines[cursor.y] = lines[cursor.y][:cursor.x-1] + lines[cursor.y][cursor.x:]
 				fmt.Printf("\r%s", lines[cursor.y]+" ")
-				fmt.Printf("\033[%vG", cursor.x+1)
+				fmt.Printf("\033[%vG", cursor.x)
+				cursor.x--
+			} else if cursor.y > 0 {
+				oldLen := len(lines[cursor.y-1])
+				lines[cursor.y-1] += lines[cursor.y]
+				lines = append(lines[:cursor.y], lines[cursor.y+1:]...) // remove line
+				fmt.Printf("\033[%vF\r", len(lines))
+				for _, line := range lines {
+					fmt.Println(line)
+				}
+				fmt.Print("\033[36m~\033[39m" + strings.Repeat(" ", len(lines[len(lines)-1])))
+				fmt.Printf("\033[%vF\033[%vG", len(lines)-cursor.y+1, oldLen+1)
+				cursor.x = oldLen
+				cursor.y--
 			}
-			fallthrough
 		case bytes.Equal(c, []byte{27, 91, 68}): // left
 			if cursor.x > 0 {
 				cursor.x--
@@ -84,21 +97,9 @@ func main() {
 			} else {
 				fmt.Print("\033[1C")
 			}
-		case bytes.Equal(c, []byte{27, 91, 67}): // right
-			cursor.x++
-			if cursor.x > len(lines[cursor.y]) {
-				if cursor.y < len(lines)-1 {
-					cursor.x = 0
-					cursor.y++
-					fmt.Print("\033[1E")
-				}
-			} else {
-				fmt.Print("\033[1C")
-			}
-
 		case bytes.Equal(c, []byte{27, 91, 65}): // up
 			if cursor.y > 0 {
-			cursor.y--
+				cursor.y--
 			}
 			if cursor.x > len(lines[cursor.y]) {
 				cursor.x = len(lines[cursor.y])
@@ -107,7 +108,7 @@ func main() {
 			fmt.Print("\033[1A")
 		case bytes.Equal(c, []byte{27, 91, 66}): // down
 			if cursor.y < len(lines) {
-			cursor.y++
+				cursor.y++
 			}
 			if cursor.x > len(lines[cursor.y]) {
 				cursor.x = len(lines[cursor.y])
