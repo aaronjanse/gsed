@@ -105,21 +105,21 @@ func main() {
 		case bytes.Equal(c, []byte{27, 91, 65}): // up
 			if cursor.y > 0 {
 				cursor.y--
+				fmt.Fprint(os.Stderr, "\033[1A")
 			}
 			if cursor.x > len(lines[cursor.y]) {
 				cursor.x = len(lines[cursor.y])
 				fmt.Fprintf(os.Stderr, "\033[%vG", cursor.x+1)
 			}
-			fmt.Fprint(os.Stderr, "\033[1A")
 		case bytes.Equal(c, []byte{27, 91, 66}): // down
-			if cursor.y < len(lines) {
+			if cursor.y < len(lines)-1 {
 				cursor.y++
+				fmt.Fprint(os.Stderr, "\033[1B")
 			}
-			if cursor.x > len(lines[cursor.y]) {
+			if cursor.x >= len(lines[cursor.y]) {
 				cursor.x = len(lines[cursor.y])
 				fmt.Fprintf(os.Stderr, "\033[%vG", cursor.x+1)
 			}
-			fmt.Fprint(os.Stderr, "\033[1B")
 		case bytes.Compare(c, []byte{32}) >= 0 && bytes.Compare(c, []byte{127}) <= 0: // printable chars
 			cursor.x++
 			lines[cursor.y] += string(c)
