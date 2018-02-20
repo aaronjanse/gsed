@@ -3,6 +3,10 @@ package main
 import (
 	"bytes"
 	"fmt"
+	"io/ioutil"
+	"log"
+	"os"
+	"strings"
 
 	"github.com/pkg/term"
 )
@@ -25,9 +29,22 @@ type Cursor struct {
 	y int
 }
 
+var lines = []string{""}
+
+func init() {
+	stat, _ := os.Stdin.Stat()
+	if (stat.Mode() & os.ModeCharDevice) == 0 { // data is being piped from stdin
+		bytes, err := ioutil.ReadAll(os.Stdin)
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		lines = strings.Split(string(bytes), "\n")
+	}
+}
+
 func main() {
 	cursor := Cursor{0, 0}
-	lines := []string{""}
 	for {
 		c := getch()
 		switch {
