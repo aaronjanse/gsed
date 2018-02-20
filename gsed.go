@@ -40,6 +40,10 @@ func init() {
 		}
 
 		lines = strings.Split(string(bytes), "\n")
+		for _, line := range lines {
+			fmt.Fprintln(os.Stderr, line)
+		}
+		fmt.Fprintf(os.Stderr, "\033[%vF\033[0G", len(lines))
 	}
 }
 
