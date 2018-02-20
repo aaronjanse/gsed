@@ -127,8 +127,8 @@ func main() {
 		case bytes.Equal(c, []byte{9}):
 			fmt.Fprint(os.Stderr, "\t")
 		default:
-			fmt.Fprintln(os.Stderr, "")
-			fmt.Fprintln(os.Stderr, c)
+			// fmt.Fprintln(os.Stderr, "")
+			// fmt.Fprintln(os.Stderr, c)
 		}
 	}
 }
