@@ -96,15 +96,17 @@ func main() {
 				}
 			}
 		case bytes.Equal(c, []byte{27, 91, 67}): // right
-			cursor.x++
-			if cursor.x > len(lines[cursor.y]) {
-				if cursor.y < len(lines)-1 {
-					cursor.x = 0
-					cursor.y++
-					fmt.Fprint(os.Stderr, "\033[1E")
+			if !(cursor.y >= len(lines)-1 && cursor.x > len(lines[cursor.y])-1) {
+				cursor.x++
+				if cursor.x > len(lines[cursor.y]) {
+					if cursor.y < len(lines)-1 {
+						cursor.x = 0
+						cursor.y++
+						fmt.Fprint(os.Stderr, "\033[1E")
+					}
+				} else {
+					fmt.Fprint(os.Stderr, "\033[1C")
 				}
-			} else {
-				fmt.Fprint(os.Stderr, "\033[1C")
 			}
 		case bytes.Equal(c, []byte{27, 91, 65}): // up
 			if cursor.y > 0 {
