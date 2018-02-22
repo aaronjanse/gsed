@@ -62,7 +62,7 @@ func main() {
 			return
 		case bytes.Equal(c, []byte{13}): // newline
 			if cursor.y < len(lines)-1 {
-				lines = append(lines[:cursor.y+1], append([]string{" "}, lines[cursor.y+1:]...)...)
+				lines = append(lines[:cursor.y+1], append([]string{""}, lines[cursor.y+1:]...)...)
 			} else {
 				lines = append(lines, "")
 			}
@@ -80,10 +80,16 @@ func main() {
 			}
 			fmt.Fprint(os.Stderr, " \033[1D")
 
-			fmt.Fprintf(os.Stderr, "\033[%vA", len(lines)-cursor.y-1)
+			fmt.Fprint(os.Stderr, "\033[1G")
+			if cursor.y < len(lines)-2 {
+				fmt.Fprintf(os.Stderr, "\033[%vA", len(lines)-cursor.y-1)
+				fmt.Fprint(os.Stderr, lines[cursor.y+1]+strings.Repeat(" ", utf8.RuneCountInString(lines[cursor.y])+1))
+			}
 
 			cursor.x = 0
 			cursor.y++
+
+			fmt.Fprint(os.Stderr, "\033[1G")
 		case bytes.Equal(c, []byte{127}): // backspace
 			if cursor.x > 0 {
 				lines[cursor.y] = lines[cursor.y][:cursor.x-1] + lines[cursor.y][cursor.x:]
