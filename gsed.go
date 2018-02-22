@@ -7,6 +7,7 @@ import (
 	"log"
 	"os"
 	"strings"
+	"unicode/utf8"
 
 	"github.com/pkg/term"
 )
@@ -60,11 +61,29 @@ func main() {
 		case bytes.Equal(c, []byte{4}):
 			return
 		case bytes.Equal(c, []byte{13}): // newline
+			if cursor.y < len(lines)-1 {
+				lines = append(lines[:cursor.y+1], append([]string{" "}, lines[cursor.y+1:]...)...)
+			} else {
 			lines = append(lines, "")
+			}
+
+			// clear line after cursor
+			fmt.Fprint(os.Stderr, strings.Repeat(" ", utf8.RuneCountInString(lines[cursor.y][cursor.x:])))
+
+			fmt.Fprint(os.Stderr, "\033[1E")
+			if cursor.x < len(lines[cursor.y]) {
+				lines[cursor.y+1] = lines[cursor.y][cursor.x:]
+				lines[cursor.y] = lines[cursor.y][:cursor.x]
+			}
+			for _, line := range lines[cursor.y+1:] {
+				fmt.Fprintln(os.Stderr, line)
+			}
+			fmt.Fprint(os.Stderr, " \033[1D")
+
+			fmt.Fprintf(os.Stderr, "\033[%vA", len(lines)-cursor.y-1)
+
 			cursor.x = 0
 			cursor.y++
-			fmt.Fprintln(os.Stderr, "")
-			fmt.Fprint(os.Stderr, " \033[1D")
 		case bytes.Equal(c, []byte{127}): // backspace
 			if cursor.x > 0 {
 				lines[cursor.y] = lines[cursor.y][:cursor.x-1] + lines[cursor.y][cursor.x:]
