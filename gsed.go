@@ -152,9 +152,10 @@ func main() {
 				fmt.Fprintf(os.Stderr, "\033[%vG", cursor.x+1)
 			}
 		case bytes.Compare(c, []byte{32}) >= 0 && bytes.Compare(c, []byte{127}) <= 0: // printable chars
+			lines[cursor.y] = lines[cursor.y][:cursor.x] + string(c) + lines[cursor.y][cursor.x:]
+			fmt.Fprint(os.Stderr, lines[cursor.y][cursor.x:])
 			cursor.x++
-			lines[cursor.y] += string(c)
-			fmt.Fprint(os.Stderr, string(c))
+			fmt.Fprintf(os.Stderr, "\033[%vG", cursor.x+1)
 		case bytes.Equal(c, []byte{9}):
 			fmt.Fprint(os.Stderr, "\t")
 		case bytes.Equal(c, []byte{27}):
