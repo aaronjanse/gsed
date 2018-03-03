@@ -1,4 +1,4 @@
-A simple interactive `sed` for when you want to modify streams with a lightweight text editor.
+A simple, interactive stream editor for when you want to modify streams with a lightweight text editor.
 
 Example usage:
 ```
