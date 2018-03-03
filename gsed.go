@@ -68,7 +68,7 @@ func main() {
 			}
 
 			// clear line after cursor
-			fmt.Fprint(os.Stderr, strings.Repeat(" ", utf8.RuneCountInString(lines[cursor.y][cursor.x:])))
+			fmt.Fprint(os.Stderr, strings.Repeat(" ", utf8.RuneCountInString(lines[cursor.y])))
 
 			fmt.Fprint(os.Stderr, "\033[1E")
 			if cursor.x < len(lines[cursor.y]) {
