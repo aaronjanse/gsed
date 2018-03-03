@@ -25,6 +25,7 @@ func getch() []byte {
 	return bytes[0:numRead]
 }
 
+// Cursor is a simple object to keep track of the cursor position
 type Cursor struct {
 	x int
 	y int
