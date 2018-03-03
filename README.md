@@ -4,3 +4,5 @@ Example usage:
 ```
 echo 'hello, world!' | gsed > demo.txt
 ```
+
+<img src="demo.gif" width="500">
